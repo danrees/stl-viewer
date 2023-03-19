@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Greet from "./lib/Greet.svelte";
   import Viewer from "./Viewer.svelte";
   import "./styles.css";
 </script>
