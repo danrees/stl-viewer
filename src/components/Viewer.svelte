@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { createScene } from "./lib/scene";
+  import { createScene } from "../lib/scene";
   import { invoke } from "@tauri-apps/api/tauri";
 
   let el: HTMLCanvasElement;
