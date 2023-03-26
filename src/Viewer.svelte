@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { createScene } from "./lib/scene";
-  import { readBinaryFile } from "@tauri-apps/api/fs";
   import { invoke } from "@tauri-apps/api/tauri";
 
   let el: HTMLCanvasElement;
@@ -16,15 +15,13 @@
       }
       newSTL[i] = val;
     });
-    console.log(something);
-    console.log(stl.length);
-    console.log(newSTL.length);
+
     return newSTL;
   };
-  const fileLoc = "";
+  export let stlPath: string;
 
   onMount(async () => {
-    const data = await loadSTL(fileLoc);
+    const data = await loadSTL(stlPath);
     createScene(el, window, data.buffer);
   });
 </script>

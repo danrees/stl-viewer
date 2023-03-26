@@ -5,5 +5,4 @@
 
 <main class="container p-5">
   <h1 class="text-3xl">Title</h1>
-  <Viewer />
 </main>
