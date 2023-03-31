@@ -3,8 +3,11 @@
 
 use config::Config;
 use serde::{Deserialize, Serialize};
-use sqlx::SqlitePool;
 use std::fs;
+use surrealdb::engine::remote::ws::Ws;
+use surrealdb::opt::auth::Root;
+use surrealdb::Surreal;
+
 use tauri::{Manager, State};
 use walkdir::WalkDir;
 
@@ -70,8 +73,19 @@ fn main() {
                 .unwrap();
             app.manage(config);
             tauri::async_runtime::block_on(async move {
-                let pool = SqlitePool::connect("sqlite://temp.db").await.unwrap();
-                app.manage(pool);
+                //let pool = SqlitePool::connect("sqlite://temp.db").await.unwrap();
+                //let ds = Datastore::new("file://stl-viewer.db").await.unwrap();
+                let db = Surreal::new::<Ws>("file://stl.db").await.unwrap();
+                db.signin(Root {
+                    username: "root",
+                    password: "root",
+                })
+                .await
+                .unwrap();
+
+                db.use_ns("stl-library").use_db("libraries").await.unwrap();
+
+                app.manage(db);
             });
 
             Ok(())
