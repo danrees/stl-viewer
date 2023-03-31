@@ -3,14 +3,22 @@
 
 use config::Config;
 use serde::{Deserialize, Serialize};
-use std::{error::Error, fs};
-use tauri::{api::path::BaseDirectory, Manager, State};
+use sqlx::SqlitePool;
+use std::fs;
+use tauri::{Manager, State};
 use walkdir::WalkDir;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct AppConfig {
     libraries: Vec<String>,
     extension: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct STLFile {
+    path: String,
+    name: String,
+    tags: Vec<String>,
 }
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -41,7 +49,7 @@ fn scan_libraries(config: State<AppConfig>) -> Result<(), String> {
                 return false;
             })
         {
-            println!("Found: {}", entry.path().as_os_str().to_string_lossy())
+            println!("Found: {}", entry.path().as_os_str().to_string_lossy());
         }
     }
     Ok(())
@@ -61,6 +69,11 @@ fn main() {
                 .try_deserialize::<AppConfig>()
                 .unwrap();
             app.manage(config);
+            tauri::async_runtime::block_on(async move {
+                let pool = SqlitePool::connect("sqlite://temp.db").await.unwrap();
+                app.manage(pool);
+            });
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![greet, load_stl, scan_libraries])

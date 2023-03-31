@@ -17,8 +17,8 @@
       path: "/Users/test/stls/test-file3.stl",
     },
   ];
-  const scan = () => {
-    invoke("scan_libraries");
+  const scan = async () => {
+    await invoke("scan_libraries");
   };
 </script>
 
@@ -27,8 +27,8 @@
   <FileViewer files={testData} />
   <button
     class="btn"
-    on:click={() => {
-      scan();
+    on:click={async () => {
+      await scan();
     }}>Scan</button
   >
 </main>
