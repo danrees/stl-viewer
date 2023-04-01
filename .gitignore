@@ -25,3 +25,4 @@ dist-ssr
 
 # Local config
 stl-viewer-config.toml
+stl.db

@@ -4,9 +4,10 @@
 use config::Config;
 use serde::{Deserialize, Serialize};
 use std::fs;
-use surrealdb::engine::remote::ws::Ws;
-use surrealdb::opt::auth::Root;
+use surrealdb::engine::local::Db;
+use surrealdb::sql::Thing;
 use surrealdb::Surreal;
+use surrealdb::{engine::local::File, opt::Strict};
 
 use tauri::{Manager, State};
 use walkdir::WalkDir;
@@ -24,6 +25,13 @@ struct STLFile {
     tags: Vec<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+struct Library {
+    id: Option<Thing>,
+    name: String,
+    path: String,
+}
+
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -36,6 +44,24 @@ fn load_stl(name: &str) -> Result<Vec<u8>, String> {
     let data = fs::read(name).map_err(|e| e.to_string())?;
     println!("Size of binary: {}", data.len());
     Ok(data)
+}
+
+#[tauri::command]
+async fn save_library(
+    name: &str,
+    path: &str,
+    db: State<'_, Surreal<Db>>,
+) -> Result<Library, String> {
+    let l: Library = db
+        .create("library")
+        .content(Library {
+            id: None,
+            name: name.into(),
+            path: path.into(),
+        })
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(l)
 }
 
 #[tauri::command]
@@ -73,15 +99,7 @@ fn main() {
                 .unwrap();
             app.manage(config);
             tauri::async_runtime::block_on(async move {
-                //let pool = SqlitePool::connect("sqlite://temp.db").await.unwrap();
-                //let ds = Datastore::new("file://stl-viewer.db").await.unwrap();
-                let db = Surreal::new::<Ws>("file://stl.db").await.unwrap();
-                db.signin(Root {
-                    username: "root",
-                    password: "root",
-                })
-                .await
-                .unwrap();
+                let db = Surreal::new::<File>(("../stl.db", Strict)).await.unwrap();
 
                 db.use_ns("stl-library").use_db("libraries").await.unwrap();
 
@@ -90,7 +108,12 @@ fn main() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![greet, load_stl, scan_libraries])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            load_stl,
+            scan_libraries,
+            save_library
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
