@@ -3,32 +3,14 @@
   import FileViewer from "./components/FileViewer.svelte";
   import type { STLFile } from "./lib/file";
   import "./styles.css";
-  let testData: STLFile[] = [
-    {
-      name: "test-file1.stl",
-      path: "/Users/test/stls/test-file1.stl",
-    },
-    {
-      name: "test-file2.stl",
-      path: "/Users/test/stls/test-file2.stl",
-    },
-    {
-      name: "test-file3.stl",
-      path: "/Users/test/stls/test-file3.stl",
-    },
-  ];
-  const scan = async () => {
-    await invoke("scan_libraries");
-  };
+  import Router from "svelte-spa-router";
+  import { routes } from "./routes";
 </script>
 
 <main class="container p-5">
-  <h1 class="text-3xl">Title</h1>
-  <FileViewer files={testData} />
-  <button
-    class="btn"
-    on:click={async () => {
-      await scan();
-    }}>Scan</button
-  >
+  <div class="tabs">
+    <a href="#/" class="tab tab-bordered">Home</a>
+    <a href="#/library" class="tab tab-bordered">Libraries</a>
+  </div>
+  <Router {routes} />
 </main>
