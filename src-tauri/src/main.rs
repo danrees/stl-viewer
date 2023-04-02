@@ -7,8 +7,7 @@ use std::fs;
 use surrealdb::engine::local::File;
 use surrealdb::Surreal;
 
-use tauri::{Manager, State};
-use walkdir::WalkDir;
+use tauri::Manager;
 
 mod stl_library;
 
@@ -39,26 +38,6 @@ fn load_stl(name: &str) -> Result<Vec<u8>, String> {
     Ok(data)
 }
 
-#[tauri::command]
-fn scan_libraries(config: State<AppConfig>) -> Result<(), String> {
-    let dirs = &config.libraries;
-    for dir in dirs {
-        for entry in WalkDir::new(dir)
-            .into_iter()
-            .filter_map(|f| f.ok())
-            .filter(|f| {
-                if let Some(ext) = f.path().extension() {
-                    return ext == config.extension.as_str();
-                }
-                return false;
-            })
-        {
-            println!("Found: {}", entry.path().as_os_str().to_string_lossy());
-        }
-    }
-    Ok(())
-}
-
 fn main() {
     // TODO: create config directory if it doesn't already exist ... maybe create a default config
     tauri::Builder::default()
@@ -86,10 +65,11 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             greet,
             load_stl,
-            scan_libraries,
+            stl_library::scan_library,
             stl_library::save_library,
             stl_library::list_libraries,
             stl_library::delete_library,
+            stl_library::list_files,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

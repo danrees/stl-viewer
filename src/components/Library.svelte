@@ -44,6 +44,17 @@
     }
   };
 
+  const scan = async (id: string) => {
+    try {
+      const resp = await invoke("scan_library", {
+        id: id.split(":"),
+        extension: "stl",
+      });
+    } catch (e) {
+      alert(e);
+    }
+  };
+
   onMount(async () => {
     reload();
   });
@@ -63,6 +74,7 @@
             deleteLib(library.id);
           }}>Delete</button
         >
+        <button class="btn" on:click={() => scan(library.id)}>Scan</button>
       </li>
     {/each}
   </ul>
