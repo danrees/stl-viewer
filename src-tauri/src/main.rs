@@ -77,6 +77,7 @@ fn main() {
                 let db = Surreal::new::<File>("../stl.db").await.unwrap();
 
                 db.use_ns("stl-viewer").use_db("libraries").await.unwrap();
+
                 app.manage(db);
             });
 

@@ -5,5 +5,6 @@ export interface STLFile {
 
 export interface Library {
   id: string;
+  name: string;
   path: string;
 }

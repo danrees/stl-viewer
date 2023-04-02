@@ -52,10 +52,10 @@
 <div>
   <h2 class="text-3xl">Add Library</h2>
   <h3 class="text-xl">Existing Libraries</h3>
-  <ul>
+  <ul class="list-disc">
     {#each libraries as library (library.id)}
-      <li>
-        {library.path}
+      <li class="list-item">
+        {library.name} - {library.path}
         <button
           class="btn"
           on:click={() => {
