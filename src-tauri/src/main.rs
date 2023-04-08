@@ -1,13 +1,16 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use crate::stl_library::File as STLFile;
 use config::Config;
 use serde::{Deserialize, Serialize};
 use std::fs;
+use surrealdb::engine::local::Db;
 use surrealdb::engine::local::File;
+use surrealdb::sql::thing;
 use surrealdb::Surreal;
 
-use tauri::Manager;
+use tauri::{Manager, State};
 
 mod stl_library;
 
@@ -17,13 +20,6 @@ struct AppConfig {
     extension: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct STLFile {
-    path: String,
-    name: String,
-    tags: Vec<String>,
-}
-
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -31,9 +27,13 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn load_stl(name: &str) -> Result<Vec<u8>, String> {
-    println!("Path is: {}", name);
-    let data = fs::read(name).map_err(|e| e.to_string())?;
+async fn load_stl(id: &str, db: State<'_, Surreal<Db>>) -> Result<Vec<u8>, String> {
+    let threedfile: STLFile = db
+        .select(thing(id).map_err(|e| e.to_string())?)
+        .await
+        .map_err(|e| e.to_string())?;
+    println!("Path is: {}", &threedfile.path);
+    let data = fs::read(&threedfile.path).map_err(|e| e.to_string())?;
     println!("Size of binary: {}", data.len());
     Ok(data)
 }

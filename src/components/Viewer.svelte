@@ -4,8 +4,9 @@
   import { invoke } from "@tauri-apps/api/tauri";
 
   let el: HTMLCanvasElement;
-  const loadSTL = async (path: string) => {
-    const stl: Uint8Array = await invoke("load_stl", { name: path });
+  const loadSTL = async (id: string) => {
+    console.log(id);
+    const stl: Uint8Array = await invoke("load_stl", { id: id });
     const buffer = new ArrayBuffer(stl.length);
     const newSTL = new Uint8Array(buffer);
     let something = false;
@@ -18,10 +19,11 @@
 
     return newSTL;
   };
-  export let stlPath: string;
+  //export let stlPath: string;
+  export let params: { id: string };
 
   onMount(async () => {
-    const data = await loadSTL(stlPath);
+    const data = await loadSTL(params.id);
     createScene(el, window, data.buffer);
   });
 </script>

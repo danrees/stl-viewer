@@ -17,7 +17,7 @@ pub struct File {
     id: Option<Thing>,
     name: String,
     extension: String,
-    path: String,
+    pub path: String,
     tags: Vec<Tag>,
 }
 

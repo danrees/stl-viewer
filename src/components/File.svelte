@@ -14,5 +14,6 @@
         <li><span class="badge badge-accent">{tag.value}</span></li>
       {/each}
     </ul>
+    <a href="#/viewer/{stl.id}" class="link">View</a>
   </div>
 </div>
