@@ -18,7 +18,7 @@ pub struct File {
     name: String,
     extension: String,
     path: String,
-    tags: Option<Vec<Thing>>,
+    tags: Vec<Tag>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -92,14 +92,19 @@ pub async fn scan_library(
             .components()
             .into_iter()
             .map(|entry| Tag {
-                id: Some(Thing {
-                    tb: String::from("tag"),
-                    id: entry.as_os_str().to_string_lossy().into_owned().into(),
-                }),
+                id: None,
                 value: entry.as_os_str().to_string_lossy().into_owned(),
             })
             .collect::<Vec<Tag>>();
-
+        let mut tags_to_save = Vec::new();
+        for tag in tags.iter() {
+            let t: Tag = db
+                .update(("tag", tag.value.clone()))
+                .content(tag)
+                .await
+                .unwrap();
+            tags_to_save.push(t);
+        }
         // let updated_tags: Vec<Future<Tag>> = tags
         //     .into_iter()
         //     .map(|tag| db.update(("tag", tag.value)).content(tag))
@@ -115,30 +120,16 @@ pub async fn scan_library(
                 .into_owned(),
             name: name,
             path: entry.path().as_os_str().to_string_lossy().into_owned(),
-            tags: None,
+            tags: tags_to_save,
         };
-        let query =
-            r#"UPDATE $id SET extension = $extension, name = $name, path = $path, tags = $tags"#;
-        let record: Option<File> = db
-            .query(query)
-            .bind(to_save)
-            .bind((
-                "tags",
-                tags.into_iter()
-                    .filter_map(|t| t.id)
-                    .collect::<Vec<Thing>>(),
-            ))
+
+        let f: Option<File> = db
+            .update(("3dfile", &hashed_name_string))
+            .content(to_save)
             .await
-            .unwrap()
-            .take(0)
+            .map_err(|e| e.to_string())
             .unwrap();
-        // let f: Option<File> = db
-        //     .update(("3dfile", &hashed_name_string))
-        //     .content(to_save)
-        //     .await
-        //     .map_err(|e| e.to_string())
-        //     .unwrap();
-        println!("Updated: {:?}", record);
+        println!("Updated: {:?}", f);
     }
 
     Ok(())

@@ -1,7 +1,4 @@
 <script lang="ts">
-  import { invoke } from "@tauri-apps/api/tauri";
-  import FileViewer from "./components/FileViewer.svelte";
-  import type { STLFile } from "./lib/file";
   import "./styles.css";
   import Router from "svelte-spa-router";
   import { routes } from "./routes";

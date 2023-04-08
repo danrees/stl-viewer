@@ -1,26 +1,19 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api";
-  import { onMount } from "svelte";
+  import type { STLFile } from "src/lib/file";
+  import File from "../components/File.svelte";
 
-  type File = {
-    name: string;
-    path: string;
-    tags: { value: string; id: string }[];
-  };
-  let files: File[] = [];
-
-  const loadFiles = async () => {
-    const resp: File[] = await invoke("list_files");
-    files = resp;
-  };
-
-  onMount(() => {
-    loadFiles();
-  });
+  let promise: Promise<STLFile[]> = invoke("list_files");
 </script>
 
-<ul>
-  {#each files as f}
-    <li>{f.name} - {f.path} - {f.tags.at(0)?.id}</li>
-  {/each}
-</ul>
+{#await promise}
+  <div>Loading...</div>
+{:then files}
+  <ul>
+    {#each files as f (f.id)}
+      <li>
+        <File stl={f} />
+      </li>
+    {/each}
+  </ul>
+{/await}
