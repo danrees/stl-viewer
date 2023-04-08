@@ -3,6 +3,7 @@
   import { open } from "@tauri-apps/api/dialog";
   import { onMount } from "svelte";
   import type { Library } from "../lib/file";
+  import { path } from "@tauri-apps/api";
 
   let library: string;
   let name: string;
@@ -31,6 +32,10 @@
       return;
     }
     library = resp;
+    if (name === undefined) {
+      const parts = resp.split(path.sep);
+      name = parts.at(-1);
+    }
   };
 
   const deleteLib = async (id: string) => {

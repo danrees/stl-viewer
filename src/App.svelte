@@ -12,6 +12,7 @@
     <a href="#/" class="tab tab-bordered">Home</a>
     <a href="#/library" class="tab tab-bordered">Libraries</a>
     <a href="#/files" class="tab tab-bordered">Files</a>
+    <a href="#/tags" class="tab tab-bordered">Tags</a>
   </div>
   <Router {routes} />
 </main>

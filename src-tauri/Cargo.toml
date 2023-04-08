@@ -23,6 +23,7 @@ surrealdb = { git = "https://github.com/surrealdb/surrealdb", tag = "v1.0.0-beta
 ] }
 sha2 = "0.10.6"
 base16ct = { version = "0.2.0", features = ["alloc"] }
+futures = "0.3.28"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

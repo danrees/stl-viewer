@@ -55,7 +55,7 @@ fn main() {
             tauri::async_runtime::block_on(async move {
                 let db = Surreal::new::<File>("../stl.db").await.unwrap();
 
-                db.use_ns("stl-viewer").use_db("libraries").await.unwrap();
+                db.use_ns("stl_viewer").use_db("libraries").await.unwrap();
 
                 app.manage(db);
             });
@@ -70,6 +70,7 @@ fn main() {
             stl_library::list_libraries,
             stl_library::delete_library,
             stl_library::list_files,
+            stl_library::get_tags,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

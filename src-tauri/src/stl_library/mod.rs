@@ -18,7 +18,13 @@ pub struct File {
     name: String,
     extension: String,
     path: String,
-    tags: Vec<String>,
+    tags: Option<Vec<Thing>>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Tag {
+    id: Option<Thing>,
+    value: String,
 }
 
 #[tauri::command]
@@ -61,7 +67,7 @@ pub async fn scan_library(
 ) -> Result<(), String> {
     let library: Library = db.select(id).await.map_err(|e| e.to_string())?;
 
-    for entry in WalkDir::new(library.path)
+    for entry in WalkDir::new(&library.path)
         .into_iter()
         .filter_map(|f| f.ok())
         .filter(|f| {
@@ -72,12 +78,35 @@ pub async fn scan_library(
         })
     {
         let s = Sha256::new();
-        println!("Found: {}", entry.path().as_os_str().to_string_lossy());
+
         let name = entry.file_name().to_string_lossy().into_owned();
         let hashed_name = s.chain_update(&name).finalize();
         let hashed_name_string = base16ct::lower::encode_string(&hashed_name);
+
+        let tags = entry
+            .path()
+            .parent()
+            .unwrap_or(&entry.path())
+            .strip_prefix(&library.path)
+            .unwrap_or(&entry.path())
+            .components()
+            .into_iter()
+            .map(|entry| Tag {
+                id: Some(Thing {
+                    tb: String::from("tag"),
+                    id: entry.as_os_str().to_string_lossy().into_owned().into(),
+                }),
+                value: entry.as_os_str().to_string_lossy().into_owned(),
+            })
+            .collect::<Vec<Tag>>();
+
+        // let updated_tags: Vec<Future<Tag>> = tags
+        //     .into_iter()
+        //     .map(|tag| db.update(("tag", tag.value)).content(tag))
+        //     .collect();
+
         let to_save = File {
-            id: None,
+            id: Some(Thing::from(("3dfile", hashed_name_string.as_str()))),
             extension: entry
                 .path()
                 .extension()
@@ -86,20 +115,30 @@ pub async fn scan_library(
                 .into_owned(),
             name: name,
             path: entry.path().as_os_str().to_string_lossy().into_owned(),
-            tags: entry
-                .path()
-                .components()
-                .into_iter()
-                .map(|entry| entry.as_os_str().to_string_lossy().into_owned())
-                .collect::<Vec<String>>(),
+            tags: None,
         };
-        let f: Option<File> = db
-            .update(("3dfile", &hashed_name_string))
-            .content(to_save)
+        let query =
+            r#"UPDATE $id SET extension = $extension, name = $name, path = $path, tags = $tags"#;
+        let record: Option<File> = db
+            .query(query)
+            .bind(to_save)
+            .bind((
+                "tags",
+                tags.into_iter()
+                    .filter_map(|t| t.id)
+                    .collect::<Vec<Thing>>(),
+            ))
             .await
-            .map_err(|e| e.to_string())
+            .unwrap()
+            .take(0)
             .unwrap();
-        println!("Updated: {:?}", f);
+        // let f: Option<File> = db
+        //     .update(("3dfile", &hashed_name_string))
+        //     .content(to_save)
+        //     .await
+        //     .map_err(|e| e.to_string())
+        //     .unwrap();
+        println!("Updated: {:?}", record);
     }
 
     Ok(())
@@ -110,4 +149,10 @@ pub async fn list_files(db: State<'_, Surreal<Db>>) -> Result<Vec<File>, String>
     let files: Vec<File> = db.select("3dfile").await.map_err(|e| e.to_string())?;
     println!("Found {} files", files.len());
     Ok(files)
+}
+
+#[tauri::command]
+pub async fn get_tags(db: State<'_, Surreal<Db>>) -> Result<Vec<Tag>, String> {
+    let tags = db.select("tag").await.map_err(|e| e.to_string())?;
+    Ok(tags)
 }

@@ -1,0 +1,42 @@
+#V2
+select * from "libraries"
+help
+info for db;
+use namespace "stl-viewer";
+use ns @stl-viewer;
+use ns stl-viewer;
+use ns 'stl-viewer';
+USE NS "stl-viewer" DB "libraries";
+use ns stl\\-viewer;
+show ns;
+NS;
+INFO for ns;
+USE NS stl-viewer;
+USE NS stl_viewer;
+INFO NS;
+INFO FOR NS:
+INFO FOR NS;
+USE DB libraries;
+INFO FOR NS;
+INFO FOR DB;
+select * from libraries;
+exit
+use NS stl_viewer DB libraries;
+INFO for DB;
+select * from library
+select * from 3dfile;
+use NS stl_viewer DB libraries;
+select * from 3dfile;
+use NS stl_viewer DB libraries;
+select * from 3dfiles;
+select * from library
+exit
+use NS stl_viewer DB libraries;
+info for db;
+CREATE tag:6052297b3da19_delving-decor-loot-markers-28mm-heroic-scale;
+CREATE tag:(6052297b3da19_delving-decor-loot-markers-28mm-heroic-scale);
+CREATE tag:test;
+info for db;
+CREATE 3dfile SET name = "test-file", tags = [tag:test, tag:test2];
+select * from tags;
+select * from tag;

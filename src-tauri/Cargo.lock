@@ -3528,6 +3528,7 @@ dependencies = [
  "anyhow",
  "base16ct",
  "config",
+ "futures",
  "serde",
  "serde_json",
  "sha2",
