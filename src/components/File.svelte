@@ -2,6 +2,7 @@
   import type { STLFile } from "src/lib/file";
 
   export let stl: STLFile;
+  export let filter: (string) => void;
 </script>
 
 <div class="card">
@@ -9,11 +10,15 @@
     <h2 class="card-title">{stl.name}</h2>
     <p>{stl.path}</p>
     <h3 class="text-xl">Tags</h3>
-    <ul class="px-10">
+
+    <div class="card-actions">
       {#each stl.tags as tag}
-        <li><span class="badge badge-accent">{tag.value}</span></li>
+        <span class="badge badge-accent" on:click={() => filter(tag.value)}
+          >{tag.value}</span
+        >
       {/each}
-    </ul>
+    </div>
+
     <a href="#/viewer/{stl.id}" class="link">View</a>
   </div>
 </div>
