@@ -65,34 +65,45 @@
   });
 </script>
 
-<div>
+<div class="">
   <h2 class="text-3xl">Add Library</h2>
   <h3 class="text-xl">Existing Libraries</h3>
-  <ul class="list-disc">
+  <ul class="px-8 py-4">
     {#each libraries as library (library.id)}
-      <li class="list-item">
-        {library.name} - {library.path}
-        <button
-          class="btn"
-          on:click={() => {
-            console.log(library);
-            deleteLib(library.id);
-          }}>Delete</button
-        >
-        <button class="btn" on:click={() => scan(library.id)}>Scan</button>
+      <li class="list-item py-2">
+        <div class="card card-compact bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h4 class="card-title">{library.name}</h4>
+            <p>{library.path}</p>
+            <div class="card-actions">
+              <button
+                class="btn"
+                on:click={() => {
+                  console.log(library);
+                  deleteLib(library.id);
+                }}>Delete</button
+              >
+              <button class="btn" on:click={() => scan(library.id)}>Scan</button
+              >
+            </div>
+          </div>
+        </div>
       </li>
     {/each}
   </ul>
   <div class="form-control py-2">
-    <input class="input input-bordered" type="text" bind:value={name} />
+    <div class="input-group">
+      <button class="btn" on:click={() => load()}>Dir</button>
+      <input class="input input-bordered" type="text" bind:value={name} />
+    </div>
+    <div class="py-2">
+      <button class="btn" on:click={() => click()}>Save</button>
+    </div>
   </div>
-  <div class="form-control py-2">
-    Library: {library}
-  </div>
-  <div class="form-control py-2">
-    <button class="btn" on:click={() => load()}>Dir</button>
-  </div>
-  <div class="form-control py-2">
-    <button class="btn" on:click={() => click()}>Save</button>
-  </div>
+  {#if library}
+    <div class="form-control py-2">
+      Library: {library}
+    </div>
+  {/if}
+  <div class="form-control py-2" />
 </div>

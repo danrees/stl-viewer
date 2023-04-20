@@ -5,7 +5,7 @@
   import { location } from "svelte-spa-router";
 </script>
 
-<main class="container p-5">
+<main class="container mx-auto p-5">
   <div class="tabs">
     <a href="#/" class="tab tab-bordered" class:tab-active={$location == "/"}
       >Home</a
