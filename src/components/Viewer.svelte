@@ -24,7 +24,8 @@
 
   onMount(async () => {
     const data = await loadSTL(params.id);
-    createScene(el, window, data.buffer);
+    const animate = createScene(el, window, data.buffer);
+    animate();
   });
 </script>
 
